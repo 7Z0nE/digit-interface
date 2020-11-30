@@ -2,14 +2,17 @@
 
 # This source code is licensed under the license found in the LICENSE file in the root directory of this source tree.
 
+from __future__ import with_statement
+from __future__ import absolute_import
 import os
 import re
 
 from setuptools import find_packages, setup
+from io import open
 
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
-install_requires = ["numpy >= 1.16", "opencv-python", "pyudev"]
+install_requires = [u"numpy >= 1.16", u"opencv-python", u"pyudev"]
 
 dependency_links = []
 
@@ -20,33 +23,33 @@ def read(fname):
 
 def find_version(*file_paths):
     version_file = read(*file_paths)
-    version_match = re.search(r"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
+    version_match = re.search(ur"^__version__ = ['\"]([^'\"]*)['\"]", version_file, re.M)
     if version_match:
         return version_match.group(1)
-    raise RuntimeError("Unable to find version string.")
+    raise RuntimeError(u"Unable to find version string.")
 
 
-with open("README.md", "r") as fh:
+with open(u"README.md", u"r") as fh:
     long_description = fh.read()
 
 setup(
-    name="digit_interface",
-    version=find_version("digit_interface/__init__.py"),
-    description="Interface for the DIGIT tactile sensor.",
-    url="https://github.com/facebookresearch/digit-interface",
-    author="Mike Lambeta, Roberto Calandra",
-    author_email="lambetam@fb.com, rcalandra@fb.com",
-    keywords=["science"],
+    name=u"digit_interface",
+    version=find_version(u"digit_interface/__init__.py"),
+    description=u"Interface for the DIGIT tactile sensor.",
+    url=u"https://github.com/facebookresearch/digit-interface",
+    author=u"Mike Lambeta, Roberto Calandra",
+    author_email=u"lambetam@fb.com, rcalandra@fb.com",
+    keywords=[u"science"],
     long_description=long_description,
-    long_description_content_type="text/markdown",
-    license="LICENSE",
+    long_description_content_type=u"text/markdown",
+    license=u"LICENSE",
     packages=find_packages(),
     install_requires=install_requires,
     dependency_links=dependency_links,
     zip_safe=True,
     classifiers=[
-        "Programming Language :: Python :: 3",
-        "Operating System :: POSIX :: Linux",
+        u"Programming Language :: Python :: 3",
+        u"Operating System :: POSIX :: Linux",
     ],
-    python_requires=">=3.6",
+    python_requires=u">=3.6",
 )

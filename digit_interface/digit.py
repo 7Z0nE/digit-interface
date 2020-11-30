@@ -2,6 +2,7 @@
 
 # This source code is licensed under the license found in the LICENSE file in the root directory of this source tree.
 
+from __future__ import absolute_import
 import logging
 import typing
 
@@ -13,22 +14,22 @@ from digit_interface.digit_handler import DigitHandler
 logger = logging.getLogger(__name__)
 
 
-class Digit:
-    def __init__(self, serial: str = None, name: str = None) -> None:
-        """
+class Digit(object):
+    def __init__(self, serial = None, name = None):
+        u"""
         DIGIT Device class for a single DIGIT
         :param serial: DIGIT device serial
         :param name: Human friendly identifier name for the device
         """
-        self.serial: str = serial
-        self.name: str = name
+        self.serial: unicode = serial
+        self.name: unicode = name
 
         self.__dev: typing.Optional[cv2.VideoCapture] = None
 
-        self.dev_name: str = ""
-        self.manufacturer: str = ""
-        self.model: str = ""
-        self.revision: str = ""
+        self.dev_name: unicode = u""
+        self.manufacturer: unicode = u""
+        self.model: unicode = u""
+        self.revision: unicode = u""
 
         self.resolution: typing.Dict = {}
         self.fps: int = 0
@@ -38,7 +39,7 @@ class Digit:
             logger.debug(f"Digit object constructed with serial {self.serial}")
             self.populate(serial)
 
-    def connect(self) -> None:
+    def connect(self):
         logger.info(f"{self.serial}:Connecting to DIGIT")
         self.__dev = cv2.VideoCapture(self.dev_name)
         if not self.__dev.isOpened():
@@ -53,29 +54,29 @@ class Digit:
         logger.debug(
             f"Default stream to QVGA {DigitHandler.STREAMS['QVGA']['resolution']}"
         )
-        self.set_resolution(DigitHandler.STREAMS["QVGA"])
+        self.set_resolution(DigitHandler.STREAMS[u"QVGA"])
         logger.debug(
             f"Default stream with {DigitHandler.STREAMS['QVGA']['fps']['60fps']} fps"
         )
-        self.set_fps(DigitHandler.STREAMS["QVGA"]["fps"]["60fps"])
-        logger.debug("Setting maximum LED illumination intensity")
+        self.set_fps(DigitHandler.STREAMS[u"QVGA"][u"fps"][u"60fps"])
+        logger.debug(u"Setting maximum LED illumination intensity")
         self.set_intensity(255)
 
-    def set_resolution(self, resolution: typing.Dict) -> None:
-        """
+    def set_resolution(self, resolution):
+        u"""
         Sets stream resolution based on supported streams in DigitHandler.STREAMS
         :param resolution: QVGA or VGA from DigitHandler.STREAMS
         :return: None
         """
-        self.resolution = resolution["resolution"]
-        width = self.resolution["width"]
-        height = self.resolution["height"]
+        self.resolution = resolution[u"resolution"]
+        width = self.resolution[u"width"]
+        height = self.resolution[u"height"]
         logger.debug(f"{self.serial}:Stream resolution set to {height}w x {width}h")
         self.__dev.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.__dev.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
-    def set_fps(self, fps: int) -> None:
-        """
+    def set_fps(self, fps):
+        u"""
         Sets the stream fps, only valid values from DigitHandler.STREAMS are accepted.
         This should typically be called after the resolution is set as the stream fps defaults to the
         highest fps
@@ -86,15 +87,15 @@ class Digit:
         logger.debug(f"{self.serial}:Stream FPS set to {self.fps}")
         self.__dev.set(cv2.CAP_PROP_FPS, self.fps)
 
-    def set_intensity(self, intensity: int) -> int:
+    def set_intensity(self, intensity):
         intensity = 1 if intensity < 1 else 255 if intensity > 255 else intensity
         self.intensity = intensity
         logger.debug(f"{self.serial}:LED intensity set to {self.intensity}")
         self.__dev.set(cv2.CAP_PROP_ZOOM, self.intensity)
         return self.intensity
 
-    def get_frame(self, transpose: bool = False) -> np.ndarray:
-        """
+    def get_frame(self, transpose = False):
+        u"""
         Returns a single image frame for the device
         :param transpose: Show direct output from the image sensor, WxH instead of HxW
         :return: Image frame array
@@ -112,8 +113,8 @@ class Digit:
             frame = cv2.flip(frame, 0)
         return frame
 
-    def save_frame(self, path: str) -> np.ndarray:
-        """
+    def save_frame(self, path):
+        u"""
         Saves a single image frame to host
         :param path: Path and file name where the frame shall be saved to
         :return: None
@@ -123,8 +124,8 @@ class Digit:
         cv2.imwrite(path, frame)
         return frame
 
-    def get_diff(self, ref_frame: np.ndarray) -> np.ndarray:
-        """
+    def get_diff(self, ref_frame):
+        u"""
         Returns the difference between two frames
         :param ref_frame: Original frame
         :return: Frame difference
@@ -132,8 +133,8 @@ class Digit:
         diff = self.get_frame() - ref_frame
         return diff
 
-    def show_view(self, ref_frame: np.ndarray = None) -> None:
-        """
+    def show_view(self, ref_frame = None):
+        u"""
         Creates OpenCV named window with live view of DIGIT device, ESC to close window
         :param ref_frame: Specify reference frame to show image difference
         :return: None
@@ -147,12 +148,12 @@ class Digit:
                 break
         cv2.destroyAllWindows()
 
-    def disconnect(self) -> None:
+    def disconnect(self):
         logger.debug(f"{self.serial}:Closing DIGIT device")
         self.__dev.release()
 
-    def info(self) -> str:
-        """
+    def info(self):
+        u"""
         Returns DIGIT device info
         :return: String representation of DIGIT device
         """
@@ -173,8 +174,8 @@ class Digit:
         )
         return info_string
 
-    def populate(self, serial: str) -> None:
-        """
+    def populate(self, serial):
+        u"""
         Find the connected DIGIT based on the serial number and populate device parameters into the class
         :param serial: DIGIT serial number
         :return:
@@ -182,8 +183,8 @@ class Digit:
         digit = DigitHandler.find_digit(serial)
         if digit is None:
             raise Exception(f"Cannot find DIGIT with serial {self.serial}")
-        self.dev_name = digit["dev_name"]
-        self.manufacturer = digit["manufacturer"]
-        self.model = digit["model"]
-        self.revision = digit["revision"]
-        self.serial = digit["serial"]
+        self.dev_name = digit[u"dev_name"]
+        self.manufacturer = digit[u"manufacturer"]
+        self.model = digit[u"model"]
+        self.revision = digit[u"revision"]
+        self.serial = digit[u"serial"]
