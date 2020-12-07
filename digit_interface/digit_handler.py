@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import
 import logging
-from typing import Dict, List, Optional
 
 import pyudev
 
@@ -52,9 +51,9 @@ class DigitHandler(object):
     @staticmethod
     def find_digit(serial):
         digits = DigitHandler.list_digits()
-        logger.debug(f"Searching for DIGIT with serial number {serial}")
+        logger.debug("Searching for DIGIT with serial number {}".format(serial))
         for digit in digits:
             if digit[u"serial"] == serial:
                 return digit
-        logger.error(f"No DIGIT with serial number {serial} found")
+        logger.error("No DIGIT with serial number {} found".format(serial))
         return None

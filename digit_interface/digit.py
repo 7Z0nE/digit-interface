@@ -4,7 +4,6 @@
 
 from __future__ import absolute_import
 import logging
-import typing
 
 import cv2
 import numpy as np
@@ -21,42 +20,42 @@ class Digit(object):
         :param serial: DIGIT device serial
         :param name: Human friendly identifier name for the device
         """
-        self.serial: unicode = serial
-        self.name: unicode = name
+        self.serial = serial
+        self.name = name
 
-        self.__dev: typing.Optional[cv2.VideoCapture] = None
+        self.__dev = None
 
-        self.dev_name: unicode = u""
-        self.manufacturer: unicode = u""
-        self.model: unicode = u""
-        self.revision: unicode = u""
+        self.dev_name = u""
+        self.manufacturer = u""
+        self.model = u""
+        self.revision = u""
 
-        self.resolution: typing.Dict = {}
-        self.fps: int = 0
-        self.intensity: int = 0
+        self.resolution = {}
+        self.fps = 0
+        self.intensity = 0
 
         if self.serial is not None:
-            logger.debug(f"Digit object constructed with serial {self.serial}")
+            logger.debug("Digit object constructed with serial {}".format(self.serial))
             self.populate(serial)
 
     def connect(self):
-        logger.info(f"{self.serial}:Connecting to DIGIT")
+        logger.info("{}:Connecting to DIGIT".format(self.serial))
         self.__dev = cv2.VideoCapture(self.dev_name)
         if not self.__dev.isOpened():
             logger.error(
-                f"Cannot open video capture device {self.serial} - {self.dev_name}"
+                "Cannot open video capture device {} - {}".format(self.serial, self.dev_name)
             )
-            raise Exception(f"Error opening video stream: {self.dev_name}")
+            raise Exception("Error opening video stream: {}".format(self.dev_name))
         # set stream defaults, QVGA at 60 fps
         logger.info(
-            f"{self.serial}:Setting stream defaults to QVGA, 60fps, maximum LED intensity."
+            "{}:Setting stream defaults to QVGA, 60fps, maximum LED intensity.".format(self.serial)
         )
         logger.debug(
-            f"Default stream to QVGA {DigitHandler.STREAMS['QVGA']['resolution']}"
+            "Default stream to QVGA {}".format(DigitHandler.STREAMS['QVGA']['resolution'])
         )
         self.set_resolution(DigitHandler.STREAMS[u"QVGA"])
         logger.debug(
-            f"Default stream with {DigitHandler.STREAMS['QVGA']['fps']['60fps']} fps"
+            "Default stream with {} fps".format(DigitHandler.STREAMS['QVGA']['fps']['60fps'])
         )
         self.set_fps(DigitHandler.STREAMS[u"QVGA"][u"fps"][u"60fps"])
         logger.debug(u"Setting maximum LED illumination intensity")
@@ -71,7 +70,7 @@ class Digit(object):
         self.resolution = resolution[u"resolution"]
         width = self.resolution[u"width"]
         height = self.resolution[u"height"]
-        logger.debug(f"{self.serial}:Stream resolution set to {height}w x {width}h")
+        logger.debug("{}:Stream resolution set to {}w x {}h".format(self.serial, height, width))
         self.__dev.set(cv2.CAP_PROP_FRAME_WIDTH, width)
         self.__dev.set(cv2.CAP_PROP_FRAME_HEIGHT, height)
 
@@ -84,13 +83,13 @@ class Digit(object):
         :return: None
         """
         self.fps = fps
-        logger.debug(f"{self.serial}:Stream FPS set to {self.fps}")
+        logger.debug("{}:Stream FPS set to {}".format(self.serial, self.fps))
         self.__dev.set(cv2.CAP_PROP_FPS, self.fps)
 
     def set_intensity(self, intensity):
         intensity = 1 if intensity < 1 else 255 if intensity > 255 else intensity
         self.intensity = intensity
-        logger.debug(f"{self.serial}:LED intensity set to {self.intensity}")
+        logger.debug("{}:LED intensity set to {}".format(self.serial, self.intensity))
         self.__dev.set(cv2.CAP_PROP_ZOOM, self.intensity)
         return self.intensity
 
@@ -103,10 +102,10 @@ class Digit(object):
         ret, frame = self.__dev.read()
         if not ret:
             logger.error(
-                f"Cannot retrieve frame data from {self.serial}, is DIGIT device open?"
+                "Cannot retrieve frame data from {}, is DIGIT device open?".format(self.serial)
             )
             raise Exception(
-                f"Unable to grab frame from {self.serial} - {self.dev_name}!"
+                "Unable to grab frame from {} - {}!".format(self.serial, self.dev_name)
             )
         if not transpose:
             frame = cv2.transpose(frame, frame)
@@ -120,7 +119,7 @@ class Digit(object):
         :return: None
         """
         frame = self.get_frame()
-        logger.debug(f"Saving frame to {path}")
+        logger.debug("Saving frame to {}".format(path))
         cv2.imwrite(path, frame)
         return frame
 
@@ -143,13 +142,13 @@ class Digit(object):
             frame = self.get_frame()
             if ref_frame is not None:
                 frame = self.get_diff(ref_frame)
-            cv2.imshow(f"Digit View {self.serial}", frame)
+            cv2.imshow("Digit View {}".format(self.serial), frame)
             if cv2.waitKey(1) == 27:
                 break
         cv2.destroyAllWindows()
 
     def disconnect(self):
-        logger.debug(f"{self.serial}:Closing DIGIT device")
+        logger.debug("{}:Closing DIGIT device".format(self.serial))
         self.__dev.release()
 
     def info(self):
@@ -162,15 +161,15 @@ class Digit(object):
         if has_dev:
             is_connected = self.__dev.isOpened()
         info_string = (
-            f"Name: {self.name} {self.dev_name}"
-            f"\n\t- Model: {self.model}"
-            f"\n\t- Revision: {self.revision}"
-            f"\n\t- CV Device?: {has_dev}"
-            f"\n\t- Connected?: {is_connected}"
-            f"\nStream Info:"
-            f"\n\t- Resolution: {self.resolution['width']} x {self.resolution['height']}"
-            f"\n\t- FPS: {self.fps}"
-            f"\n\t- LED Intensity: {self.intensity}"
+            "Name: {} {}"
+            "\n\t- Model: {}"
+            "\n\t- Revision: {}"
+            "\n\t- CV Device?: {}"
+            "\n\t- Connected?: {}"
+            "\nStream Info:"
+            "\n\t- Resolution: {} x {}"
+            "\n\t- FPS: {}"
+            "\n\t- LED Intensity: {}".format(self.name, self.dev_name, self.model, self.revision, has_dev, is_connected, self.resolution['width'], self.resolution['height'], self.fps, self.intensity)
         )
         return info_string
 
@@ -182,7 +181,7 @@ class Digit(object):
         """
         digit = DigitHandler.find_digit(serial)
         if digit is None:
-            raise Exception(f"Cannot find DIGIT with serial {self.serial}")
+            raise Exception("Cannot find DIGIT with serial {}".format(self.serial))
         self.dev_name = digit[u"dev_name"]
         self.manufacturer = digit[u"manufacturer"]
         self.model = digit[u"model"]
